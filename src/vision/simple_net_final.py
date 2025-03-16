@@ -22,10 +22,10 @@ class SimpleNetFinal(nn.Module):
         ############################################################################
 
         self.conv_layers = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=10, kernel_size=5, stride=1, padding=2),  # Conv1
+            nn.Conv2d(in_channels=1, out_channels=10, kernel_size=5, stride=1, padding=0),  # Conv1
             nn.BatchNorm2d(10),  # BatchNorm after Conv1
             nn.ReLU(), # Activation
-            nn.MaxPool2d(kernel_size=3, stride=3),  # Pool1
+            nn.MaxPool2d(kernel_size=3, stride=3,padding=0),  # Pool1
 
             nn.Dropout(p=0.5),  # Dropout layer before the last convoltion layer Conv2
 
@@ -36,7 +36,7 @@ class SimpleNetFinal(nn.Module):
             
             nn.Conv2d(in_channels=10, out_channels=15, kernel_size=5, stride=1, padding=0),  # Conv3
             nn.ReLU(),  # Activation
-            nn.MaxPool2d(kernel_size=3, stride=2)  # Pool3 
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=0)  # Pool3 
         )
 
         self.fc_layers = nn.Sequential(
@@ -88,4 +88,4 @@ class SimpleNetFinal(nn.Module):
         # Student code end
         ############################################################################
 
-2        return model_output
+        return model_output
