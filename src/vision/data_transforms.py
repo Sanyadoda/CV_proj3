@@ -124,11 +124,10 @@ def get_all_transforms(
     ###########################################################################
 
     all_transforms = transforms.Compose([
-        transforms.RandomHorizontalFlip(p=0.5),
-        transforms.RandomApply([transforms.ColorJitter(brightness=0.2, contrast=0.2)], p=0.5),
-        transforms.RandomRotation(degrees=10),  # Rotate randomly up to 10 degrees
-        transforms.RandomResizedCrop(size=inp_size, scale=(0.8, 1.0)),  # Random zoom/crop
-        transforms.ToTensor(),
+        transforms.RandomHorizontalFlip(p=0.5),  # Randomly flip images
+        transforms.ColorJitter(brightness=0.2, contrast=0.2),  # Jitter grayscale intensities
+        transforms.Resize(inp_size),  # Resize to the required input size
+        transforms.ToTensor(),  # Convert to PyTorch tensor
         transforms.Normalize(mean=pixel_mean, std=pixel_std)
     ])
     
