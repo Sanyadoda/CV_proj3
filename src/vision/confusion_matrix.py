@@ -52,7 +52,22 @@ def generate_confusion_data(
     for label, index in label_to_idx.items():
         class_labels[index] = label
 
-    with torch.no_grad():  # Disable gradient computation for efficiency
+    idx = 0  # Initialize index for assigning values to pre
+    with torch.no_grad():
+        for data, target in loader:
+            if use_cuda:
+                data, target = data.cuda(), target.cuda()
+            output = model(data)
+            _, pred = torch.max(output, 1)
+
+            # Assign predicted and target values to the pre-allocated arrays
+            targets[idx : idx + batch_size] = target.cpu().numpy()  
+            preds[idx : idx + batch_size] = pred.cpu().numpy()    
+
+            idx += batch_size  # Update index for the next batch
+
+
+    """with torch.no_grad():  # Disable gradient computation for efficiency
         for i, (images, labels) in enumerate(loader):
             images, labels = images.to(device), labels.to(device)
             outputs = model(images)  # Forward pass
@@ -62,7 +77,7 @@ def generate_confusion_data(
             start_idx = i * batch_size
             end_idx = start_idx + images.size(0)
             preds[start_idx:end_idx] = predicted.cpu().numpy()
-            targets[start_idx:end_idx] = labels.cpu().numpy()
+            targets[start_idx:end_idx] = labels.cpu().numpy()"""
 
     """ raise NotImplementedError(
         "`generate_confusion_data` function in "
@@ -74,7 +89,7 @@ def generate_confusion_data(
     ##########################################################################
     model.train()
 
-    return targets.cpu().numpy(), preds.cpu().numpy(), class_labels
+    return targets, preds, class_labels
 
 
 def generate_confusion_matrix(
