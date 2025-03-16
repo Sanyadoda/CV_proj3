@@ -24,25 +24,22 @@ class MultilabelResNet18(nn.Module):
         # Student code begin
         ############################################################################
 
-        #Load the pretrained ResNet18 model
-        model = resnet18(pretrained=True)
+        # Load pretrained ResNet18 model
+        resnet = resnet18(pretrained=True)
 
-        # Retrieve all layers except the final FC layer
-        self.conv_layers = nn.Sequential(*list(model.children())[:-1])  # Remove final FC layer
+        # Freeze all convolutional and first two fully connected layers
+        for param in resnet.parameters():
+            param.requires_grad = False
 
-        # Freeze all convolutional layers
-        #for param in self.conv_layers.parameters():
-            #param.requires_grad = False  
+        # Modify the last fully connected layer for 7 output labels
+        num_features = resnet.fc.in_features
+        resnet.fc = nn.Linear(num_features, 7)
 
-        # Get the number of input features for the new FC layer
-        num_features = model.fc.in_features  # Typically 512 for ResNet18
+        self.conv_layers = nn.Sequential(*list(resnet.children())[:-1])  # All layers except final FC
+        self.fc_layers = resnet.fc  # Last FC layer (trainable)
+        self.activation = nn.Sigmoid()  # Sigmoid activation for multi-label classification
 
-        # Replace the final fully connected layer with one that outputs 7 classes
-        self.fc_layers = nn.Linear(num_features, 7)
-
-        # Loss function for multi-label classification
-        self.loss_criterion = nn.BCEWithLogitsLoss(reduction="mean")  # Binary Cross-Entropy loss
-
+        self.loss_criterion = nn.BCEWithLogitsLoss(reduction='mean')  # Binary cross-entropy loss
 
         """ raise NotImplementedError(
             "`__init__` function in "
@@ -69,14 +66,14 @@ class MultilabelResNet18(nn.Module):
         ############################################################################
 
         # Extract features using frozen convolutional layers
-        x_features = self.conv_layers(x)
-        x_flatten = torch.flatten(x_features, 1)  # Flatten (batch_size, num_features)
+        features = self.conv_layers(x)  # Extract features
+        features = features.view(features.size(0), -1)  # Flatten
 
-        # Pass through the FC layer
-        model_output = self.fc_layers(x_flatten)  
+        # Pass through the FC layer 
+        logits = self.fc_layers(features)  # Get raw scores
 
         # Apply sigmoid activation for multi-label classification
-        model_output = torch.sigmoid(model_output)
+        model_output = self.activation(logits)  # Apply sigmoid for multi-label output
         
         """ raise NotImplementedError(
             "`forward` function in "
