@@ -114,10 +114,23 @@ def compute_multilabel_accuracy(logits: torch.Tensor, labels: torch.Tensor) -> f
     # Student code begin
     ############################################################################
 
-    raise NotImplementedError(
+    # Apply sigmoid activation to convert logits to probabilities
+    probs = torch.sigmoid(logits)
+
+    # Convert probabilities to binary predictions (threshold at 0.5)
+    preds = (probs >= 0.5).float()
+
+    # Count correctly predicted labels
+    correct = (preds == labels).sum().item()
+    total = labels.numel()  # Total number of labels
+
+    # Compute accuracy
+    batch_accuracy = correct / total
+
+    """ raise NotImplementedError(
         "`compute_multilabel_accuracy` function in "
         + "`dl_utils.py` needs to be implemented"
-    )
+    ) """
 
     ############################################################################
     # Student code end
