@@ -61,11 +61,10 @@ def generate_confusion_data(
             _, pred = torch.max(output, 1)
 
             # Assign predicted and target values to the pre-allocated arrays
-            targets[idx : idx + batch_size] = target.cpu().numpy()  # Moved .cpu() here
-            preds[idx : idx + batch_size] = pred.cpu().numpy()     # Moved .cpu() here
+            targets[idx : idx + batch_size] = target.cpu().numpy()  
+            preds[idx : idx + batch_size] = pred.cpu().numpy()    
 
             idx += batch_size  # Update index for the next batch
-
 
     """with torch.no_grad():  # Disable gradient computation for efficiency
         for i, (images, labels) in enumerate(loader):
