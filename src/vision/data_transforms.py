@@ -21,7 +21,7 @@ def get_fundamental_transforms(inp_size: Tuple[int, int]) -> transforms.Compose:
     # Student code begins
     ###########################################################################
 
-    fundamental_transforms=transforms.compose([transforms.Resize(size=inp_size),
+    fundamental_transforms=transforms.Compose([transforms.Resize(size=inp_size),
                             transforms.ToTensor()
      ])
     """ raise NotImplementedError(
