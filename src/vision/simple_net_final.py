@@ -22,7 +22,7 @@ class SimpleNetFinal(nn.Module):
         ############################################################################
 
         self.conv_layers = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=10, kernel_size=5, stride=1, padding=0),  # Conv1
+            nn.Conv2d(in_channels=1, out_channels=10, kernel_size=5, stride=1, padding=2),  # Conv1
             nn.BatchNorm2d(10),  # BatchNorm after Conv1
             nn.ReLU(), # Activation
             nn.MaxPool2d(kernel_size=3, stride=3),  # Pool1
@@ -32,7 +32,7 @@ class SimpleNetFinal(nn.Module):
             nn.Conv2d(in_channels=10, out_channels=10, kernel_size=5, stride=1, padding=0),  # Conv2
             nn.BatchNorm2d(10),  # BatchNorm after Conv2
             nn.ReLU(),  # Activation
-            nn.MaxPool2d(kernel_size=3, stride=3),  # Pool2      
+            #nn.MaxPool2d(kernel_size=3, stride=3),  # Pool2      
             
             nn.Conv2d(in_channels=10, out_channels=15, kernel_size=5, stride=1, padding=0),  # Conv3
             nn.ReLU(),  # Activation
@@ -51,7 +51,6 @@ class SimpleNetFinal(nn.Module):
                 nn.init.constant_(layer.bias, 0)
 
         self.loss_criterion = nn.CrossEntropyLoss(reduction='mean')
-
 
         """ raise NotImplementedError(
             "`__init__` function in "
@@ -89,4 +88,4 @@ class SimpleNetFinal(nn.Module):
         # Student code end
         ############################################################################
 
-        return model_output
+2        return model_output
