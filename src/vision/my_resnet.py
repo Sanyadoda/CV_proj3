@@ -22,48 +22,24 @@ class MyResNet18(nn.Module):
         # Student code begin
         ############################################################################
 
-        # Load pretrained model without the last FC layer
-        resnet = resnet18(pretrained=False)
-        pretrained_model_path = "./CV_proj3/trained_MyResNet18_final.pt"
-        checkpoint = torch.load(pretrained_model_path, map_location="cpu")
+        model=resnet18(pretrained= True)
 
-        if checkpoint["class_name"] != "MyResNet18":
-            raise ValueError(f"Expected MyResNet18 model weights, found {checkpoint['class_name']}")
 
-        state_dict = checkpoint["state_dict"]
-        state_dict.pop("fc_layers.weight", None)  # Remove final FC layer
-        state_dict.pop("fc_layers.bias", None)
+        # Retrieve all layers except the final FC layer from the pretrained model
+        self.conv_layers = nn.Sequential(*list(model.children())[:-1])  # Exclude the final FC layer
 
-        # Load pretrained weights (excluding the last FC layer)
-        resnet.load_state_dict(state_dict, strict=False)
+        #Freeze all parameters in the convolutional layers
+        for param in self.conv_layers.parameters():
+            param.requires_grad = False  # Freeze convolution layers
 
-        # Freeze convolutional layers
-        for param in resnet.parameters():
-            param.requires_grad = False
 
-        # Extract convolutional layers
-        self.conv_layers = nn.Sequential(*list(resnet.children())[:-2])  # Keep all but last FC
+        # Get the number of input features to the FC layer
+        num_features = model.fc.in_features  # Typically 512 for ResNet18
 
-        #Ensure feature size is (batch, 512) using adaptive pooling
-        self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))  
+        # Replace the final FC layer with a new one that outputs 15 classes
+        self.fc_layers = nn.Linear(num_features, 15)
 
-        # Ensure input to FC is correct (512 features)
-        num_features = 512  
-        self.fc_layers = nn.Sequential(
-            nn.Linear(num_features, 256),  
-            nn.ReLU(),
-            nn.Linear(256, 128),
-            nn.ReLU(),
-            nn.Linear(128, 7)
-        )
-
-        # Freeze first two FC layers
-        for param in list(self.fc_layers.children())[:4]:  
-            param.requires_grad = False
-
-        self.activation = nn.Sigmoid()
-        
-        self.loss_criterion = nn.BCEWithLogitsLoss(reduction="mean")
+        self.loss_criterion = nn.CrossEntropyLoss(reduction="mean")
 
 
         """ raise NotImplementedError(
@@ -89,19 +65,15 @@ class MyResNet18(nn.Module):
         ############################################################################
         # Student code begin
         ############################################################################
-        # Extract convolutional features
-        features = self.conv_layers(x)
-
-        # Ensure the output is (batch_size, 512)
-        features = self.avg_pool(features)
-        features = torch.flatten(features, start_dim=1)  # Flatten properly
-
-        # Pass through FC layers
-        x = self.fc_layers(features)
-
-        # Apply sigmoid activation for multi-label classification
-        model_output= self.activation(x)
         
+
+        # Pass through the convolutional layers (no gradient updates here)
+        x_features = self.conv_layers(x)  
+        x_flatten = torch.flatten(x_features, 1)  # Flatten the output from Conv layers (batch size, num_features)
+        
+        # Pass through the new FC layer to get the final classification
+        model_output = self.fc_layers(x_flatten)  # Output layer with 15 classes
+
         """ raise NotImplementedError(
             "`forward` function in "
             + "`my_resnet.py` needs to be implemented"
