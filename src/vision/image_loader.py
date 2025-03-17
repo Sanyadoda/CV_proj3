@@ -255,24 +255,21 @@ class MultiLabelImageLoader(data.Dataset):
         ############################################################################
         # Student code begin
         ############################################################################
+        
+        # Define valid classes
+        valid_classes = {'coast', 'highway', 'mountain', 'opencountry', 'street'}
 
-        df = pd.read_csv(self.labels_csv)
+        # Read CSV file
+        df = pd.read_csv(self.labels_csv, header=None)
 
-        # Ensure that only the images from the classes in ['coast', 'highway', 'mountain', 'opencountry', 'street'] are included
-        valid_classes = ['coast', 'highway', 'mountain', 'opencountry', 'street']
-        class_to_idx = {cls: i for i, cls in enumerate(valid_classes)}
-
-        img_paths = []
-
+        # Iterate over each row
         for _, row in df.iterrows():
-            img_path = os.path.join(self.curr_folder, row['filename'])
-            labels = torch.zeros(len(valid_classes))
+            class_name, filename, *labels = row  # Unpack row values
 
-            for cls in row['labels'].split():  
-                if cls in class_to_idx:
-                    labels[class_to_idx[cls]] = 1  # Multi-label one-hot encoding
-            
-            img_paths.append((img_path, labels))
+            if class_name in valid_classes:
+                full_path = os.path.join(self.curr_folder, class_name, filename)  # Construct full image path
+                labels_tensor = torch.tensor(labels, dtype=torch.float32)  # Convert labels to tensor
+                img_paths.append((full_path, labels_tensor))
 
 
         """ raise NotImplementedError(

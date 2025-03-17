@@ -74,7 +74,11 @@ def compute_loss(
     # Student code begin
     ############################################################################
 
-    loss_function = nn.CrossEntropyLoss()
+   
+    if isinstance(model, MultilabelResNet18):
+        loss_function=nn.BCELoss()
+    else:
+         loss_function = nn.CrossEntropyLoss()
 
     # Compute loss
     loss = loss_function(model_output, target_labels)

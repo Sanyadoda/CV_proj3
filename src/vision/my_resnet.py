@@ -24,14 +24,12 @@ class MyResNet18(nn.Module):
 
         model=resnet18(pretrained= True)
 
-
         # Retrieve all layers except the final FC layer from the pretrained model
         self.conv_layers = nn.Sequential(*list(model.children())[:-1])  # Exclude the final FC layer
 
         #Freeze all parameters in the convolutional layers
         for param in self.conv_layers.parameters():
             param.requires_grad = False  # Freeze convolution layers
-
 
         # Get the number of input features to the FC layer
         num_features = model.fc.in_features  # Typically 512 for ResNet18

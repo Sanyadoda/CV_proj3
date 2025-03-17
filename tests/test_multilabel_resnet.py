@@ -15,7 +15,7 @@ def test_multilabel_resnet():
         num_params_grad,
         num_params_nograd,
     ) = extract_model_layers(this_res_net)
-
+   
     assert output_dim == 7
     assert num_params_grad < 10000
     assert num_params_nograd > 1e7
